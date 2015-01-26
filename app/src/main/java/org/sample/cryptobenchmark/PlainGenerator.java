@@ -2,19 +2,19 @@ package org.sample.cryptobenchmark;
 
 
 public class PlainGenerator {
-    private Charset charset;
+    private ByteCharset byteCharset;
 
-    public PlainGenerator(Charset charset) {
-        this.charset = charset;
+    public PlainGenerator(ByteCharset byteCharset) {
+        this.byteCharset = byteCharset;
     }
 
-    String getVariation(int i, int length) {
+    byte[] getVariation(int i, int length) {
         int pos = 0;
-        String result = "";
+        byte result[] = new byte[length];
         while (pos < length) {
-            result += charset.getCharAtModulo(i);
+            result[pos] = byteCharset.getCharAtModulo(i);
             ++pos;
-            i /= charset.getLength();
+            i /= byteCharset.getLength();
         }
         return result;
     }

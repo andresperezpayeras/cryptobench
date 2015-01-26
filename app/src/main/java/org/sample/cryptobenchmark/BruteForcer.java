@@ -1,22 +1,24 @@
-// TODO: change package name
 package org.sample.cryptobenchmark;
 
 import android.util.Log;
+import android.widget.ProgressBar;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+// http://docs.oracle.com/javase/7/docs/api/java/security/MessageDigest.html
+
 class BruteForcer {
-    private Charset charset;
+    private ByteCharset byteCharset;
     private PlainGenerator plainGenerator;
-    private static int length = 4;
+    private int length;
     private boolean found = false;
-    private int sample[] = new int[]{0x95, 0xeb, 0xc3, 0xc7, 0xb3, 0xb9, 0xf1, 0xd2, 0xc4, 0x0f, 0xec, 0x14, 0x41, 0x5d, 0x3c, 0xb8};
+    private String algorithm;
 
-    public BruteForcer() {
-        charset = new Charset("qwertyuiopasdfghjklzxcvbnm");
-        plainGenerator = new PlainGenerator(charset);
-
+    public BruteForcer(ByteCharset byteCharset, int length) {
+        this.byteCharset = byteCharset;
+        this.length = length;
+        plainGenerator = new PlainGenerator(byteCharset);
     }
 
     private boolean fastCompare(int[] sample, byte[] hash) {
@@ -28,26 +30,22 @@ class BruteForcer {
         return true;
     }
 
-    public int crack() {
+    public int crack(String algorithm, int sample[], ProgressBar progressBar) {
 
         int i = 0;
         try {
-
-            MessageDigest md = MessageDigest.getInstance("MD5");
-
-            System.out.println(plainGenerator.getVariation((int) Math.pow(26, 4) - 1, length));
-
-            System.out.println(md.digest(plainGenerator.getVariation(0, length).getBytes())[0]);
-            for (i = 0; i < Math.pow(charset.getLength(), length); ++i) {
-                byte[] table = md.digest(plainGenerator.getVariation(i, length).getBytes());
+            MessageDigest md = MessageDigest.getInstance(algorithm);
+            long keySpace = (long) Math.pow(byteCharset.getLength(), length);
+            for (i = 0; i < keySpace; ++i) {
+                byte[] table = md.digest(plainGenerator.getVariation(i, length));
                 if (fastCompare(sample, table)) {
                     found = true;
                 }
+                progressBar.setProgress((int) (((double) i) / (keySpace) * 100));
             }
         } catch (NoSuchAlgorithmException e) {
             Log.e("Bruteforcer: ", "No such algorithm");
         }
         return i;
     }
-
 }
