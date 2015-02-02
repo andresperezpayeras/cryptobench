@@ -13,7 +13,6 @@ class BruteForcer {
     private PlainGenerator plainGenerator;
     private int length;
     private boolean found = false;
-    private String algorithm;
 
     public BruteForcer(ByteCharset byteCharset, int length) {
         this.byteCharset = byteCharset;

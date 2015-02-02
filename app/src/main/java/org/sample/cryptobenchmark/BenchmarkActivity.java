@@ -1,5 +1,6 @@
 package org.sample.cryptobenchmark;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -11,8 +12,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 
-public class MainActivity extends ActionBarActivity {
-    private Button button;
+public class BenchmarkActivity extends ActionBarActivity {
+    private Button benchmarkButton, resultsButton;
     private TextView textViewMD5, textViewSHA1, textViewSHA2;
     private ProgressBar progressBarMD5;
     private ProgressBar progressBarSHA1;
@@ -48,10 +49,12 @@ public class MainActivity extends ActionBarActivity {
 
         @Override
         protected void onPostExecute(Void v) {
+
             textViewMD5.setText("MD5 [H/s]: " + (long) (((float) (KEYSPACE_SIZE)) / (end[0] - start[0]) * 1000));
             textViewSHA1.setText("SHA1 [H/s]: " + (long) (((float) (KEYSPACE_SIZE)) / (end[1] - start[1]) * 1000));
             textViewSHA2.setText("SHA2 [H/s]: " + (long) (((float) (KEYSPACE_SIZE)) / (end[2] - start[2]) * 1000));
-            button.setText(getResources().getString(R.string.run));
+
+            benchmarkButton.setText(getResources().getString(R.string.run));
         }
 
         @Override
@@ -82,8 +85,11 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        button = (Button) findViewById(R.id.button);
-        button.setOnClickListener(new ButtonClickListener());
+        benchmarkButton = (Button) findViewById(R.id.button);
+        benchmarkButton.setOnClickListener(new BenchmarkButtonClickListener());
+
+        resultsButton = (Button) findViewById(R.id.button3);
+        resultsButton.setOnClickListener(new ResultsButtonClickListener());
 
         textViewMD5 = (TextView) findViewById(R.id.textView);
         textViewSHA1 = (TextView) findViewById(R.id.textView3);
@@ -101,17 +107,26 @@ public class MainActivity extends ActionBarActivity {
 
     }
 
-    class ButtonClickListener implements Button.OnClickListener {
+    class BenchmarkButtonClickListener implements Button.OnClickListener {
         @Override
         public void onClick(View v) {
 
             if (!inProgress) {
                 new BenchmarkTask().execute(null, null, null);
-                button.setText(getResources().getString(R.string.stop));
+                benchmarkButton.setText(getResources().getString(R.string.stop));
             } else {
-                button.setText(getResources().getString(R.string.run));
+                benchmarkButton.setText(getResources().getString(R.string.run));
             }
             inProgress = !inProgress;
+        }
+    }
+
+    class ResultsButtonClickListener implements Button.OnClickListener {
+
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(BenchmarkActivity.this, ResultsActivity.class);
+            startActivity(intent);
         }
     }
 
