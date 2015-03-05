@@ -47,29 +47,32 @@ public class BenchmarkActivity extends ActionBarActivity {
         private long start[] = new long[3];
         private long end[] = new long[3];
 
+        private long performance(int index) {
+            return (long) (((float) (KEYSPACE_SIZE)) / (end[index] - start[index]) * 1000);
+        }
+
+        private void performTest(int index, String algorithm, int[] sample, ProgressBar progressBar) {
+            start[index] = System.currentTimeMillis();
+            new BruteForcer(lowerCase, 3).crack(algorithm, sample, progressBar);
+            end[index] = System.currentTimeMillis();
+        }
+
         @Override
         protected void onPostExecute(Void v) {
 
-            textViewMD5.setText("MD5 [H/s]: " + (long) (((float) (KEYSPACE_SIZE)) / (end[0] - start[0]) * 1000));
-            textViewSHA1.setText("SHA1 [H/s]: " + (long) (((float) (KEYSPACE_SIZE)) / (end[1] - start[1]) * 1000));
-            textViewSHA2.setText("SHA2 [H/s]: " + (long) (((float) (KEYSPACE_SIZE)) / (end[2] - start[2]) * 1000));
+            textViewMD5.setText("MD5 [H/s]: " + performance(0));
+            textViewMD5.setText("SHA1 [H/s]: " + performance(1));
+            textViewMD5.setText("SHA2 [H/s]: " + performance(2));
 
             benchmarkButton.setText(getResources().getString(R.string.run));
         }
 
         @Override
         protected Void doInBackground(Void... params) {
-            start[0] = System.currentTimeMillis();
-            new BruteForcer(lowerCase, 3).crack("MD5", sampleMD5, progressBarMD5);
-            end[0] = System.currentTimeMillis();
 
-            start[1] = System.currentTimeMillis();
-            new BruteForcer(lowerCase, 3).crack("SHA1", sampleSHA1, progressBarSHA1);
-            end[1] = System.currentTimeMillis();
-
-            start[2] = System.currentTimeMillis();
-            new BruteForcer(lowerCase, 3).crack("SHA-256", sampleSHA2, progressBarSHA2);
-            end[2] = System.currentTimeMillis();
+            performTest(0, "MD5", sampleMD5, progressBarMD5);
+            performTest(0, "SHA1", sampleSHA1, progressBarSHA1);
+            performTest(0, "SHA2", sampleSHA2, progressBarSHA2);
 
             return null;
         }
